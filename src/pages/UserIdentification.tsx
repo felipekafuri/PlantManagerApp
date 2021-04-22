@@ -1,18 +1,20 @@
-import { useNavigation } from '@react-navigation/native'
 import React, { useState } from 'react'
 import {
+  Alert,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
-  View,
-  Alert,
+  TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
-  TouchableOpacity
+  View
 } from 'react-native'
+
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useNavigation } from '@react-navigation/native'
 
 import { Button } from '../components/Button'
 import colors from '../styles/colors'
@@ -40,8 +42,28 @@ export function UserIdentification() {
   }
 
 
-  function handleSubmit() {
-    navigate('Confirmation')
+ async function handleSubmit() {
+
+    if(!name){
+      Alert.alert('Must insert a name 🥲')
+      return
+    }
+
+    try{ 
+      await AsyncStorage.setItem('@PlantManager:user', name)
+
+      navigate('Confirmation', {
+        title: 'Prontinho!',
+        subtitle: 'Agora vamos começar a cuidar das suas plantinhas com muito cuidado!',
+        buttonTitle: 'Começar',
+        icon: 'smile',
+        nextScreen: 'PlantsSelect'
+      })
+    }catch{
+      Alert.alert('Must insert a name 🥲')
+    }
+
+  
   }
 
   return (
@@ -68,6 +90,7 @@ export function UserIdentification() {
                       borderColor: colors.green
                     }
                   ]}
+                  autoCorrect={false}
                   placeholder="John Doe"
                   onBlur={handleInputBlur}
                   onFocus={handleInputFocus}

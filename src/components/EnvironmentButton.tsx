@@ -1,10 +1,11 @@
-import React from 'react'
+import { formatDistance } from 'date-fns/esm'
+import ptBR from 'date-fns/esm/locale/pt-BR/index.js'
+import React, { useEffect, useState } from 'react'
+import { FlatList, StyleSheet, Text, View, Image } from 'react-native'
+import { RectButton, RectButtonProps } from 'react-native-gesture-handler'
+import waterdrop from '../assets/waterdrop.png'
 
-import { 
-  StyleSheet,
-  Text
-} from 'react-native'
-import {RectButton, RectButtonProps} from 'react-native-gesture-handler'
+import { loadPlants, PlantProps } from '../libs/storage'
 import colors from '../styles/colors'
 import fonts from '../styles/fonts'
 
@@ -14,6 +15,7 @@ interface EnvironmentButtonProps extends RectButtonProps{
 }
 
 export function EnvironmentButton({title, active = false, ...rest}:EnvironmentButtonProps){
+ 
   return(
     <RectButton style={[styles.container, active && styles.containerActive]} {...rest}>
       <Text style={[styles.text, active && styles.textActive]}>{title}</Text>
@@ -32,15 +34,19 @@ const styles = StyleSheet.create({
     borderRadius:  12,
     marginHorizontal: 5 
   },
+
   containerActive:{
     backgroundColor: colors.green_light
   },
+
   text:{
     color: colors.heading,
     fontFamily: fonts.text
   },
+
   textActive:{
     color: colors.green_dark,
     fontFamily: fonts.heading,
-  }
+  },
+
 })
