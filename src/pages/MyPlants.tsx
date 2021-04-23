@@ -1,19 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Image, Text, FlatList } from 'react-native';
-import { Header } from '../components/Header';
-import colors from '../styles/colors';
+import { formatDistance } from 'date-fns'
+import { pt } from 'date-fns/locale'
+import React, { useEffect, useState } from 'react'
+import { Alert, FlatList, Image, StyleSheet, Text, View } from 'react-native'
+
 
 import waterdrop from '../assets/waterdrop.png'
-import { loadPlants, PlantProps } from '../libs/storage';
-import { formatDistance } from 'date-fns';
-import { pt } from 'date-fns/locale';
-import fonts from '../styles/fonts';
-import { PlantCardSecondary } from '../components/PlantCardSecondary';
+import { Header } from '../components/Header'
+import { Load } from '../components/Load'
+import { PlantCardSecondary } from '../components/PlantCardSecondary'
+import { loadPlants, PlantProps, removePlant } from '../libs/storage'
+import colors from '../styles/colors'
+import fonts from '../styles/fonts'
 
 export function MyPlants() {
   const [myPlants, setMyPlants] = useState<PlantProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [nextWatered, setNextWatered] = useState<string>();
+
+  function handleRemove(plant:PlantProps){
+    Alert.alert('Remover', `Deseja remover a ${plant.name}?`, [
+      {
+        text: 'Não 🙏🏼',
+        style: "cancel"
+      },
+      {
+        text: 'Sim 😅',
+        onPress: async () =>{
+          try{
+            await removePlant(plant)
+            setMyPlants(oldState => 
+              oldState.filter((item) => item.id !== plant.id)
+            )
+          }catch{
+            Alert.alert('Não foi possivel remover.')
+          }
+        }
+      }
+    ])
+  }
 
   useEffect(() => {
     async function loadStorageData() {
@@ -35,6 +59,9 @@ export function MyPlants() {
     loadStorageData()
   }, [])
 
+  if (loading)
+    return <Load />
+
   return (
     <View style={styles.container}>
       <Header />
@@ -53,7 +80,10 @@ export function MyPlants() {
           data={myPlants}
           keyExtractor={item => String(item.id)}
           renderItem={({ item }) => (
-            <PlantCardSecondary data={item} />
+            <PlantCardSecondary
+              data={item} 
+              handleRemove={()=>{handleRemove(item)}}
+             />
           )}
           showsVerticalScrollIndicator={false}
           // contentContainerStyle={{ flex: 1 }}
